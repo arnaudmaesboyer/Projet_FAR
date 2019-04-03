@@ -8,6 +8,7 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 
+/*test test*/
 int main(int argc,char* argv[]){
 	int dSocket = socket(PF_INET,SOCK_STREAM,0);
 	struct sockaddr_in adr;
