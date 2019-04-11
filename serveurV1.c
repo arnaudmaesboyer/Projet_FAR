@@ -18,13 +18,13 @@ int main(int argc,char* argv[]){
 
 	int res = bind(dSocket,(struct sockaddr*) &adr,sizeof(adr));
 	if(res==-1){
-		perror("erreur de nommage");
-		exit(0);
+		perror("Erreur de nommage de la socket serveur");
+		return 0;
 	}
 	int resL = listen(dSocket,5);
 	if(resL==-1){
-		perror("erreur dans l'attente de connection");
-		exit(0);
+		perror("Erreur dans l'attente de connection des clients");
+		return 0;
 	}
 	struct sockaddr_in adClient1;
 	socklen_t lgA1=sizeof(struct sockaddr_in);
@@ -33,52 +33,60 @@ int main(int argc,char* argv[]){
 
 
 	while(1){
-		printf("on passe par le while\n");
 
 		int dSocketClient1 = accept(dSocket,(struct sockaddr *) &adClient1,&lgA1);
 		int dSocketClient2 = accept(dSocket,(struct sockaddr *) &adClient2,&lgA2);
 		char msg[50];
 		while(1){
 					
-				
 			int resR1 = recv(dSocketClient1,msg,sizeof(msg),0);
 			if(resR1==-1){
-				perror("erreur de reception");
-				exit(0);
+				perror("Erreur de reception du message du client 1");
+				return 0;
 			}
 			else if(resR1==0){
-				perror("socket fermé");
-				exit(0);
+				perror("Socket fermé du client 1");
+				return 0;
 			}
-			printf("Message recu : %s",msg);
+			if(strcmp(msg,"fin\n")==0){
+				printf("Les deux clients sont déconnectés");
+				close(dSocketClient2);
+				close(dSocketClient1);
+				break;
+			}
+
+			printf("Message recu du Client 1: %s",msg);
 			int resS1 = send(dSocketClient2,msg,strlen(msg)+1,0);
 			if(resS1==-1){
-				perror("erreur d'envoie");
-				exit(0);
+				perror("Erreur d'envoie du message pour le client 2");
+				return 0;
 			}
 			
 			int resR2 = recv(dSocketClient2,msg,sizeof(msg),0);
 			if(resR2==-1){
-				perror("erreur de reception");
-				exit(0);
+				perror("Erreur de reception du message du client 2");
+				return 0;		
 			}
 			else if(resR2==0){
-				perror("socket fermé");
-				exit(0);
+				perror("Socket fermé du client 2");
+				return 0;	
 			}
-			printf("Message recu : %s",msg);
+
+			if(strcmp(msg,"fin\n")==0){
+				printf("Les deux clients sont déconnectés");
+				close(dSocketClient2);
+				close(dSocketClient1);
+				break;
+			}
+
+			printf("Message recu du Client 2: %s",msg);
 			int resS2 = send(dSocketClient1,msg,strlen(msg)+1,0);
 			if(resS2==-1){
-				perror("erreur d'envoie");
-				exit(0);
+				perror("Erreur d'envoie du message pour le client 1");
+				return 0;
 			}
-			
-	
 		}
-
-		
 	}
 	close(dSocket);
-	exit(0);
-
+	return 0;
 }
