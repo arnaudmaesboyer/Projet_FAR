@@ -14,16 +14,13 @@
 int dSock;
 pthread_t env;
 pthread_t recep;
+/*Variable globales utilisés dans le main et les fonctions threads*/
 
 void *envoie(void *arg){
-	puts("salut envoie");
+	/*Comme dans la V1 nous sommes dans le thread permettant d'envoyer un message au serveur*/
 	char buffer[50];
 		while(1){
-
-			/*Ici nous sommes dans le traitement pour le client 1, celui ci envoie un message écrit dans le terminal et l'envoie au serveur */
-
 			fgets(buffer,50,stdin);
-
 			int resS = send(dSock,buffer,strlen(buffer)+1,0);
 			if(resS==-1){
 				perror("Erreur dans l'envoie du message du client 1 vers le serveur");
@@ -33,20 +30,15 @@ void *envoie(void *arg){
 				perror("Erreur dans l'envoie du message du client 2 vers le serveur --> Le message n'a pas été envoyé entièrement");
 				pthread_exit(NULL);
 			}
-			/*if(strcmp(buffer,"fin\n")==0){
-				break;
-			}*/
+			
 		}
-	/*pthread_cancel(env);
-	pthread_cancel(recep);*/
 	pthread_exit(NULL);
 }
 
 void *reception(void *arg){
-	puts("salut reception");
+	/*Comme dans la V1 nous sommes dans le thread permettant la réception des messages*/
 	char buffer[50];
 	while(1){
-
 			int resR = recv(dSock,&buffer,sizeof(buffer),0);
 			if(resR==0){
 				perror("Le client 1 est fermé");
@@ -86,12 +78,13 @@ int main(int argc,char* argv[]){
 		close(dSock);
 		return 0;
 	}
+	/*On a configurer la connection au serveur en créant les sockets et en se connectant*/
 	char pseudo[40];
 	strcpy(pseudo,argv[2]);
 	send(dSock,pseudo,strlen(pseudo)+1,0);
+	/*On définit un pseudo passé en paramètre du terminal ex : ./client 40002 Jean*/
+	/*Et on l'envoie au serveur pour qu'il sache comment on s'appelle*/
 		
-	printf("on est apres la décla\n");
-
 	if(pthread_create(&env,NULL,(void*)&envoie,NULL)==-1){
 		perror("erreur dans la création du thread 1");
 		return EXIT_FAILURE;
@@ -100,10 +93,11 @@ int main(int argc,char* argv[]){
 		perror("erreur dans la création du thread 2");
 		return EXIT_FAILURE;
 	}
-	puts("on a fini");
+	/*Comme dans la V1 on crée les threads envoie et réception*/
 	
 	int ret= pthread_join(env,NULL);
 	int ret2= pthread_join(recep,NULL);
+	/*Et on attend que ces threads soient terminés avant de finir l'exécution du main*/
 
 	close(dSock);
 	return EXIT_SUCCESS;
