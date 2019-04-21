@@ -14,6 +14,7 @@
 int dSock;
 pthread_t env;
 pthread_t recep;
+/*Ces variables sont globales car nous les utilisons à la fois dans le main et dans les fonctions thread*/
 
 void *envoie(void *arg){
 	/*Ici nous somme dans le thread où le client peut envoyer des messages au serveur*/
