@@ -10,15 +10,13 @@
 #include <string.h>
 #include <pthread.h>
 
-
 int dSocketClient1;
 int dSocketClient2;
+/*Ces variables globales sont à la fois utilisés dans le main et dans les fonctions thread*/
 
 void *c1versc2(void *arg){
 	while(1){
-
-		    char msg[50];
-	
+		   	char msg[50];
 			int resR1 = recv(dSocketClient1,msg,sizeof(msg),0);
 			/*On recoit le message du client 1*/
 			if(resR1==-1){
@@ -119,14 +117,10 @@ int main(int argc,char* argv[]){
 	while(1){
 		/*Ici on rentre dans un while(1) pour permettre au serveur de rester allumer même lors de la déconnection des clients*/
 		dSocketClient1 = accept(dSocket,(struct sockaddr *) &adClient1,&lgA1);
-		printf("on a accepté le client 1\n");
 
 		dSocketClient2 = accept(dSocket,(struct sockaddr *) &adClient2,&lgA2);
-		printf("on est apres laccept\n");
 		/*On met en place deux sockets clients pour permettre l'échange de message bien structuré*/
 		
-		printf("on est apres la décla\n");
-
 		if(pthread_create(&client1,NULL,(void*)&c1versc2,NULL)==-1){
 			perror("erreur dans la création du thread 1");
 			return EXIT_FAILURE;
@@ -134,7 +128,8 @@ int main(int argc,char* argv[]){
 		if(pthread_create(&client2,NULL,(void*)&c2versc1,NULL)==-1){
 			perror("erreur dans la création du thread 2");
 			return EXIT_FAILURE;
-		}			
+		}
+		/*On crée les deux fonctions thread permettant de soit envoyer du Client 1 vers le client 2 soit l'inverser*/
 		
 	}
 
