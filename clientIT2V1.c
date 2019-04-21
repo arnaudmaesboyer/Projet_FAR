@@ -16,15 +16,12 @@ pthread_t env;
 pthread_t recep;
 
 void *envoie(void *arg){
-	puts("salut envoie");
+	/*Ici nous somme dans le thread où le client peut envoyer des messages au serveur*/
 	char buffer[50];
 		while(1){
-
-			/*Ici nous sommes dans le traitement pour le client 1, celui ci envoie un message écrit dans le terminal et l'envoie au serveur */
-
 			fgets(buffer,50,stdin);
-
 			int resS = send(dSock,buffer,strlen(buffer)+1,0);
+			/*On envoie le message au serveur*/
 			if(resS==-1){
 				perror("Erreur dans l'envoie du message du client 1 vers le serveur");
 				pthread_exit(NULL);
@@ -33,21 +30,18 @@ void *envoie(void *arg){
 				perror("Erreur dans l'envoie du message du client 2 vers le serveur --> Le message n'a pas été envoyé entièrement");
 				pthread_exit(NULL);
 			}
-			/*if(strcmp(buffer,"fin\n")==0){
-				break;
-			}*/
+			
 		}
-	/*pthread_cancel(env);
-	pthread_cancel(recep);*/
 	pthread_exit(NULL);
 }
 
 void *reception(void *arg){
-	puts("salut reception");
+	/*Ici nous sommes dans le thread permettant de recevoir les messages venant du serveur*/
 	char buffer[50];
 	while(1){
 
 			int resR = recv(dSock,&buffer,sizeof(buffer),0);
+			/*On reçoit le message*/
 			if(resR==0){
 				perror("Le client 1 est fermé");
 				pthread_exit(NULL);
@@ -61,9 +55,11 @@ void *reception(void *arg){
 			if(strcmp(buffer,"fin\n")==0){
 				break;
 			}
+			/*Si le message reçu est fin alors on sort de la boucle*/
 		}
 	pthread_cancel(env);
 	pthread_cancel(recep);
+	/*Et on arrete les deux threads envoie() et réception()*/
 	pthread_exit(NULL);
 
 }
@@ -86,21 +82,22 @@ int main(int argc,char* argv[]){
 		close(dSock);
 		return 0;
 	}
-		
-	printf("on est apres la décla\n");
-
+	/*On crée la socket client et on se connecte au serveur*/
 	if(pthread_create(&env,NULL,(void*)&envoie,NULL)==-1){
 		perror("erreur dans la création du thread 1");
 		return EXIT_FAILURE;
 	}
+	/*Ici on crée notre premier thread permettant d'envoyer les messages au serveur*/
 	if(pthread_create(&recep,NULL,(void*)&reception,NULL)==-1){
 		perror("erreur dans la création du thread 2");
 		return EXIT_FAILURE;
 	}
-	puts("on a fini");
+	/*Et ici on crée celui qui permet de recevoir les message du serveur*/
 	
 	int ret= pthread_join(env,NULL);
 	int ret2= pthread_join(recep,NULL);
+	/*Ces fonctions permettent de bloquer le main principal et d'attendre que les threads envoie et reception soient terminés
+	pour continuer l'exécution du programme*/
 
 	close(dSock);
 	return EXIT_SUCCESS;
