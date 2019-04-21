@@ -62,7 +62,6 @@ void *clientVersAutre(int i){
 			}
 
 			char message[60]="";
-
 			strcat(message,"Message recu de ");
 			strcat(message,tabSocketClient[i].pseudo);
 			strcat(message," : ");
