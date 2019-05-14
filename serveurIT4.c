@@ -27,12 +27,14 @@ struct socketClient tabSocketClient[100];
 
 
 struct salon{
-	char nom[50];
+	int nom;
 	struct socketClient tabSocketClient[100];
-	int nbClient = 0;
+	int nbClient;
 };
 
+
 struct salon tabSalon[10];
+
 
 int nombreClient;
 
@@ -41,7 +43,7 @@ struct envoiClient{
 	int numClient;
 };
 	
-	
+
 
  /*On définit à 100 le nombre max de client qui peuvent se connecter*/
 
@@ -102,29 +104,33 @@ void *clientVersAutre(struct envoiClient envoi){
 
 void *connexion(){
 	while(1){
-		char pseudo[40];
 		struct socketClient client;
-		int sockClient = accept(client.socketC,(struct sockaddr *) &(socketClient.adresseC),&lgA);
-		send(sockClient,tabSalon,strlen(Salon)+1,0);
-		char nomSalon[];
-		int res = recv(socketClient,nomSalon,sizeof(nomSalon),0);
+		int sockClient = accept(client.socketC,(struct sockaddr *) &(client.adresseC),&lgA);
+
+		char msgPseudo[]="Entrez votre pseudo :";
+		send(sockClient,msgPseudo,strlen(msgPseudo)+1,0);
+		int res = recv(client.socketC,client.pseudo,strlen(client.pseudo),0);
+
+		send(sockClient,tabSalon,sizeof(tabSalon),0);
+		char nomSalon[50];
+		res = recv(client.socketC,nomSalon,sizeof(nomSalon),0);
 		int i;		
-		for(i=0,i<10,i++){
-			if(strcmp(tabSalon[i].nomSalon,nomSalon) == 0){
-				if(tabClient[i].nbClient < 10){
-					tabSalon[i].tabSocketClient[tabSalon[i].nbClient] = sockClient;
+		for(i=0;i<10;i++){
+			if(strcmp(tabSalon[i].nom,nomSalon) == 0){
+				if(tabSalon[i].nbClient < 10){
+					tabSalon[i].tabSocketClient[tabSalon[i].nbClient] = client;
 					tabSalon[i].nbClient += 1;
 					struct envoiClient envoi;
 					envoi.salonClient = tabSalon[i];
 					envoi.numClient = tabSalon[i].nbClient - 1; 
-					if(pthread_create(&(tabSalon[i].tabSocketClient[tabSalon[i].nbClient].thread),NULL,(void*)&clientVersAutre,envoi)==-1){
+					if(pthread_create(&(tabSalon[i].tabSocketClient[tabSalon[i].nbClient].thread),NULL,(void*)&clientVersAutre,&envoi)==-1){
 						perror("erreur dans la création du thread 1");
 						return EXIT_FAILURE;
 					}
 				}
 				else{
-					char msg[] = "Ce salon est plein"
-					send(sockClient,tabSalon,strlen(Salon)+1,0);
+					char msg[] = "Ce salon est plein";
+					send(sockClient,msg,strlen(msg)+1,0);
 				}
 			}	
 		}
@@ -157,7 +163,15 @@ int main(int argc,char* argv[]){
 		return 0;
 	}
 
-	/*On a bind le serveur pour permettre aux clients de se connecter et on le met en listen avec le nombreMax de clients possible*/
+    /*On a bind le serveur pour permettre aux clients de se connecter et on le
+met en listen avec le nombreMax de clients possible*/     
+	/*int m;
+	for(m=0;m<sizeof(tabSalon);m++){    
+    	 tabSalon[m].nbClient=0;    
+     }
+     tabSalon[0].nom = 1;*/
+
+
 
 	while(1){
 		pthread_t thread;

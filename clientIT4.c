@@ -14,6 +14,19 @@
 int dSock;
 pthread_t env;
 pthread_t recep;
+
+struct socketClient{
+	int socketC;
+	struct sockaddr_in adresseC;
+	pthread_t thread;
+	char pseudo[40];
+};
+struct salon{
+	char nom[50];
+	struct socketClient tabSocketClient[100];
+	int nbClient;
+};
+struct salon tabSalon[10];
 /*Variable globales utilisés dans le main et les fonctions threads*/
 
 void *envoie(void *arg){
@@ -69,7 +82,7 @@ int main(int argc,char* argv[]){
 	}
 	struct sockaddr_in adServ;
 	adServ.sin_family=AF_INET;
-	inet_pton(AF_INET,"162.38.111.27",&(adServ.sin_addr));
+	inet_pton(AF_INET,"162.38.110.8",&(adServ.sin_addr));
 	adServ.sin_port=htons(atoi(argv[1])); /* L'argument 1 est le port du serveur */ 
 	socklen_t lgA = sizeof(struct sockaddr_in);
 	int resC = connect(dSock,(struct sockaddr*)&adServ,lgA);
@@ -81,6 +94,14 @@ int main(int argc,char* argv[]){
 	/*On a configurer la connection au serveur en créant les sockets et en se connectant*/
 	char pseudo[40];
 	strcpy(pseudo,argv[2]);
+	send(dSock,pseudo,strlen(pseudo)+1,0);
+
+	recv(dSock,tabSalon,sizeof(tabSalon),0);
+	int h;
+	for(h=0;h<10;h++){
+		printf("%s\n", tabSalon[h].nom );
+	} 
+	fgets(pseudo,50,stdin);  //nom du salon
 	send(dSock,pseudo,strlen(pseudo)+1,0);
 	/*On définit un pseudo passé en paramètre du terminal ex : ./client 40002 Jean*/
 	/*Et on l'envoie au serveur pour qu'il sache comment on s'appelle*/
