@@ -27,7 +27,7 @@ struct socketClient tabSocketClient[100];
 
 
 struct salon{
-	int nom;
+	int numSalon;
 	struct socketClient tabSocketClient[100];
 	int nbClient;
 };
@@ -43,7 +43,7 @@ struct envoiClient{
 	int numClient;
 };
 	
-
+int dSocket;
 
  /*On définit à 100 le nombre max de client qui peuvent se connecter*/
 
@@ -54,9 +54,13 @@ void *clientVersAutre(struct envoiClient envoi){
 	int k;
 	while(1){
 
+		puts("cest bon 9");
+
 		  	char msg[50];
 			int resR1 = recv(envoi.salonClient.tabSocketClient[envoi.numClient].socketC,msg,sizeof(msg),0);
 			/*On recoit le message du client i*/
+		puts("cest bon 10");
+
 			if(resR1==-1){
 				perror("Erreur de reception du message du client");
 				pthread_exit(NULL);
@@ -65,8 +69,12 @@ void *clientVersAutre(struct envoiClient envoi){
 				perror("Socket fermé du client");
 				pthread_exit(NULL);
 			}
+		puts("cest bon 11");
+
 			if(strcmp(msg,"fin\n")==0){
 				for(k=0;k<nombreClient;k++){
+		puts("cest bon 12");
+
 					send(envoi.salonClient.tabSocketClient[k].socketC,msg,strlen(msg)+1,0);
 					/*On envoie le message fin à chaque client (même celui qui a envoyé 'fin') pour qu'ils
 					ferment eux-même leur socket et leurs threads*/
@@ -79,6 +87,8 @@ void *clientVersAutre(struct envoiClient envoi){
 				printf("Les clients sont déconnectés");
 				pthread_exit(NULL);
 			}
+		puts("cest bon 13");
+
 
 			char message[60]="";
 			strcat(message,"Message recu de ");
@@ -90,7 +100,9 @@ void *clientVersAutre(struct envoiClient envoi){
 			printf("%s",message);
 			for(j=0;j<nombreClient;j++){
 				if(j!=envoi.numClient){
-					int resS1 = send(envoi.salonClient.tabSocketClient[k].socketC,message,strlen(message)+1,0);
+		puts("cest bon 14");
+
+					int resS1 = send(envoi.salonClient.tabSocketClient[j].socketC,message,strlen(message)+1,0);
 					if(resS1==-1){
 					perror("Erreur d'envoie du message pour les clients ");
 					pthread_exit(NULL);
@@ -104,33 +116,45 @@ void *clientVersAutre(struct envoiClient envoi){
 
 void *connexion(){
 	while(1){
+		puts("on passe là");
 		struct socketClient client;
-		int sockClient = accept(client.socketC,(struct sockaddr *) &(client.adresseC),&lgA);
+		client.socketC = accept(dSocket,(struct sockaddr *) &(client.adresseC),&lgA);
+		puts("on passe 2");
 
-		char msgPseudo[]="Entrez votre pseudo :";
-		send(sockClient,msgPseudo,strlen(msgPseudo)+1,0);
-		int res = recv(client.socketC,client.pseudo,strlen(client.pseudo),0);
-
-		send(sockClient,tabSalon,sizeof(tabSalon),0);
-		char nomSalon[50];
-		res = recv(client.socketC,nomSalon,sizeof(nomSalon),0);
+		int res = recv(client.socketC,client.pseudo,sizeof(client.pseudo),0);
+		puts("cest bon");
+		printf("%s\n",client.pseudo);
+		send(client.socketC,tabSalon,sizeof(tabSalon),0);
+		puts("cest bon 2");
+		char nomSalon;
+		res = recv(client.socketC,&nomSalon,sizeof(nomSalon),0);
+		printf("%c\n",nomSalon);
+		int numSalon= atoi(&nomSalon);
+		printf("%d", numSalon);
 		int i;		
 		for(i=0;i<10;i++){
-			if(strcmp(tabSalon[i].nom,nomSalon) == 0){
+			if(tabSalon[i].numSalon==numSalon){
+
 				if(tabSalon[i].nbClient < 10){
+
 					tabSalon[i].tabSocketClient[tabSalon[i].nbClient] = client;
+
 					tabSalon[i].nbClient += 1;
+
 					struct envoiClient envoi;
+
 					envoi.salonClient = tabSalon[i];
+
 					envoi.numClient = tabSalon[i].nbClient - 1; 
+
 					if(pthread_create(&(tabSalon[i].tabSocketClient[tabSalon[i].nbClient].thread),NULL,(void*)&clientVersAutre,&envoi)==-1){
 						perror("erreur dans la création du thread 1");
-						return EXIT_FAILURE;
+						pthread_exit(NULL);
 					}
 				}
 				else{
 					char msg[] = "Ce salon est plein";
-					send(sockClient,msg,strlen(msg)+1,0);
+					send(client.socketC,msg,strlen(msg)+1,0);
 				}
 			}	
 		}
@@ -146,7 +170,7 @@ int main(int argc,char* argv[]){
 	int i;
 	int k;
 	int l;
-	int dSocket = socket(PF_INET,SOCK_STREAM,0);
+	dSocket = socket(PF_INET,SOCK_STREAM,0);
 	struct sockaddr_in adr;
 	adr.sin_family = AF_INET;
 	adr.sin_addr.s_addr = INADDR_ANY;
@@ -165,15 +189,13 @@ int main(int argc,char* argv[]){
 
     /*On a bind le serveur pour permettre aux clients de se connecter et on le
 met en listen avec le nombreMax de clients possible*/     
-	/*int m;
-	for(m=0;m<sizeof(tabSalon);m++){    
-    	 tabSalon[m].nbClient=0;    
+	int m;
+	for(m=0;m<10;m++){    
+    	tabSalon[m].nbClient=0;    
+    	tabSalon[m].numSalon=m;
      }
-     tabSalon[0].nom = 1;*/
 
-
-
-	while(1){
+	
 		pthread_t thread;
 		//création du thread connexion
 		if(pthread_create(&(thread),NULL,(void*)&connexion,NULL)==-1){
@@ -189,7 +211,7 @@ met en listen avec le nombreMax de clients possible*/
 			close(tabSocketClient[l].socketC);
 		}
 		/*Et on ferme tous les sockets clients*/
-	}
+
 
 	close(dSocket);
 	return EXIT_SUCCESS;

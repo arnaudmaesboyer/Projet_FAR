@@ -22,7 +22,7 @@ struct socketClient{
 	char pseudo[40];
 };
 struct salon{
-	char nom[50];
+	int numSalon;
 	struct socketClient tabSocketClient[100];
 	int nbClient;
 };
@@ -82,7 +82,7 @@ int main(int argc,char* argv[]){
 	}
 	struct sockaddr_in adServ;
 	adServ.sin_family=AF_INET;
-	inet_pton(AF_INET,"162.38.110.8",&(adServ.sin_addr));
+	inet_pton(AF_INET,"162.38.111.181",&(adServ.sin_addr));
 	adServ.sin_port=htons(atoi(argv[1])); /* L'argument 1 est le port du serveur */ 
 	socklen_t lgA = sizeof(struct sockaddr_in);
 	int resC = connect(dSock,(struct sockaddr*)&adServ,lgA);
@@ -99,10 +99,15 @@ int main(int argc,char* argv[]){
 	recv(dSock,tabSalon,sizeof(tabSalon),0);
 	int h;
 	for(h=0;h<10;h++){
-		printf("%s\n", tabSalon[h].nom );
+		printf("%d\n", tabSalon[h].numSalon );
+
 	} 
-	fgets(pseudo,50,stdin);  //nom du salon
-	send(dSock,pseudo,strlen(pseudo)+1,0);
+	puts("Rentrer le numéro du salon où vous voulez rentrer :");
+	char nomSalon[1];
+	fgets(nomSalon,2,stdin);  //nom du salon
+	puts("cest bon11");
+
+	send(dSock,&nomSalon,strlen(nomSalon)+1,0);
 	/*On définit un pseudo passé en paramètre du terminal ex : ./client 40002 Jean*/
 	/*Et on l'envoie au serveur pour qu'il sache comment on s'appelle*/
 		
