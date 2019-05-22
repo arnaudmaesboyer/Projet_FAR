@@ -32,6 +32,7 @@ struct salon{
 struct salon tabSalon[10];
 
 struct salon prems;
+struct salon deu;
 
 int dSocket;
 
@@ -96,8 +97,8 @@ void *clientVersAutre(int i){
 
 
 			printf("%s",message);
-			for(j=0;j<nombreClient;j++){
-				if(j!=i){
+			for(j=0;j<100;j++){
+				if(j!=i && strcmp(tabSocketClient[i].salon,tabSocketClient[j].salon)==0){
 					int resS1 = send(tabSocketClient[j].socketC,message,strlen(message)+1,0);
 					if(resS1==-1){
 					perror("Erreur d'envoie du message pour les clients ");
@@ -129,10 +130,27 @@ void *connexion(){
 		printf("%s\n",client.salon);
 
 		int k;
+		int valide = 1;
 		for(k=0;k<10;k++){
-			if(strcmp(tabSalon[k].salon,client.salon)==0){
+			if(strcmp(tabSalon[k].salon,client.salon)==0 && tabSalon[k].nbClient<3){
 				tabSalon[k].nbClient += 1;
+				valide = 0;
 			}
+		}
+
+		while(valide == 1){
+			char msg[50]="Ce salon est plein veuillez en saisir un autre ! ";
+			send(client.socketC,msg,strlen(msg)+1,0);
+			puts("cest bon 2");
+			// on met le nom du salon choisit dans le client
+			res = recv(client.socketC,client.salon,sizeof(client.salon),0);
+			printf("%s\n",client.salon);
+			for(k=0;k<10;k++){
+			if(strcmp(tabSalon[k].salon,client.salon)==0 && tabSalon[k].nbClient<3){
+				tabSalon[k].nbClient += 1;
+				valide = 0;
+			}
+		}
 		}
 		
 		tabSocketClient[i] = client;
@@ -156,6 +174,10 @@ int main(int argc,char* argv[]){
 	strcpy(prems.salon,"prems\n"); // car on va le comparer avec un fgets
 	prems.nbClient= 0;
 	tabSalon[0] = prems;
+
+	strcpy(deu.salon,"deu\n"); // car on va le comparer avec un fgets
+	deu.nbClient= 0;
+	tabSalon[1] = deu;
 
 	int i;
 	int k;
