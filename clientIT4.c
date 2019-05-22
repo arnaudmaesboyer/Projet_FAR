@@ -24,7 +24,6 @@ struct salon{
 
 
 void *envoie(void *arg){
-	/*Comme dans la V1 nous sommes dans le thread permettant d'envoyer un message au serveur*/
 	char buffer[50];
 		while(1){
 			fgets(buffer,50,stdin);
@@ -37,7 +36,11 @@ void *envoie(void *arg){
 				perror("Erreur dans l'envoie du message du client 2 vers le serveur --> Le message n'a pas été envoyé entièrement");
 				pthread_exit(NULL);
 			}
-			
+			/*if(strcmp(buffer,"fin\n")==0){
+				puts("Vous avez été deco !");
+				exit(0);
+				break;
+			}*/
 		}
 	pthread_exit(NULL);
 }
@@ -57,9 +60,7 @@ void *reception(void *arg){
 			}
 			printf("%s",buffer);
 
-			if(strcmp(buffer,"fin\n")==0){
-				break;
-			}
+			
 		}
 	pthread_cancel(env);
 	pthread_cancel(recep);

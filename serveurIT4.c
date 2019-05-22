@@ -46,12 +46,13 @@ struct socketClient tabSocketClient[100];
 int nombreClient;
 
  /*On définit à 100 le nombre max de client qui peuvent se connecter*/
-
+/* thread de qiui envoi les message aux autres clients*/
 void *clientVersAutre(int i){
 	/*Dans cette version nous avons donc qu'une seule fonction de thread qui permet d'envoyer un message
 	à tous les clients sauf celui qui vient d'envoyer le message*/
 	int j;
 	int k;
+
 	while(1){
 
 		  	char msg[50];
@@ -65,20 +66,16 @@ void *clientVersAutre(int i){
 				perror("Socket fermé du client");
 				pthread_exit(NULL);
 			}
-			if(strcmp(msg,"fin\n")==0){
-				for(k=0;k<nombreClient;k++){
-					send(tabSocketClient[k].socketC,msg,strlen(msg)+1,0);
-					/*On envoie le message fin à chaque client (même celui qui a envoyé 'fin') pour qu'ils
-					ferment eux-même leur socket et leurs threads*/
-					if(k!=i){
-						pthread_cancel(tabSocketClient[k].thread);
+			/*if(strcmp(msg,"fin\n")==0){
+				int a;
+				for(a=0;a<10;a++){
+					if(strcmp(tabSalon[a].salon,tabSocketClient[j].salon)==0){
+						tabSalon[k].nbClient -= 1;
 					}
-					/*Et on arrete les threads des clients 1 par 1*/
-				
 				}
-				printf("Les clients sont déconnectés");
+				printf("Le client est déconnecté");
 				pthread_exit(NULL);
-			}
+			}*/
 
 			char message[60]="";
 			strcat(message,"Message recu de ");
@@ -111,6 +108,7 @@ void *clientVersAutre(int i){
 }
 
 
+/* thread de qui tourne en permannence pour la connexion de nouveaux clients*/
 
 void *connexion(){
 	int i = 0;
