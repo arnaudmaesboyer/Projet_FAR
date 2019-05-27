@@ -147,6 +147,7 @@ void *envoie(void *arg){
 					perror("Erreur dans l'envoie du message du client vers le serveur --> Le message n'a pas été envoyé entièrement");
 					pthread_exit(NULL);
 				}
+				printf("Message envoyé !\n");
 			}
 			
 		}
@@ -168,7 +169,7 @@ void *reception(void *arg){
 				perror("Erreur dans la réception du message du client 2");
 				pthread_exit(NULL);
 			}
-			printf("%s",buffer);
+			printf("Message reçu de l'autre client : %s\n",buffer);
 
 			if(strcmp(buffer,"/file\n")==0){
 				char nomFichier[100];
@@ -180,7 +181,7 @@ void *reception(void *arg){
 				FILE* monFich = NULL;
 				monFich=fopen(cheminFichier,"w+");
 
-				char contenueFichier[1000];
+				char contenueFichier[20000];
 				resR = recv(dSock,&contenueFichier,sizeof(contenueFichier),0); 
 				if(fputs(contenueFichier,monFich)<0){
 					perror("probleme ecriture dans fichier");
@@ -212,15 +213,17 @@ int main(int argc,char* argv[]){
 	}
 	struct sockaddr_in adServ;
 	adServ.sin_family=AF_INET;
-	inet_pton(AF_INET,"162.38.111.14",&(adServ.sin_addr));
+	inet_pton(AF_INET,"162.38.111.55",&(adServ.sin_addr));
 	adServ.sin_port=htons(atoi(argv[1])); /* L'argument 1 est le port du serveur */ 
 	socklen_t lgA = sizeof(struct sockaddr_in);
 	int resC = connect(dSock,(struct sockaddr*)&adServ,lgA);
 	if (resC==-1){
-		perror("Erreur de connection au serveur");
+		perror("Erreur de connexion au serveur");
 		close(dSock);
 		return 0;
 	}
+
+	printf("Vous êtes connectés !\n");
 	/*On crée la socket client et on se connecte au serveur*/
 	if(pthread_create(&env,NULL,(void*)&envoie,NULL)==-1){
 		perror("erreur dans la création du thread 1");

@@ -16,7 +16,7 @@ int dSocketClient2;
 
 void *threadFichier(int *arg){
 	char nomFichier[100];
-	char contenueFich[1000];
+	char contenueFich[20000];
 	if(*arg==1){
 		int resR1 = recv(dSocketClient1,nomFichier,sizeof(nomFichier),0);
 		if(resR1==-1){
@@ -33,7 +33,7 @@ void *threadFichier(int *arg){
 			pthread_exit(NULL);
 		}
 		/*On recoit le nom du fichier et on l'envoie à lautre client pour quil crée un fichier*/
-
+		printf("Nom du fichier reçu.\n");
 
 		resR1 = recv(dSocketClient1,contenueFich,sizeof(contenueFich),0);
 		if(resR1==-1){
@@ -44,12 +44,16 @@ void *threadFichier(int *arg){
 			perror("Socket fermé du client 1");
 			pthread_exit(NULL);
 		}
+
+		printf("Contenue du fichier reçu\n");
+
 		resS1 = send(dSocketClient2,contenueFich,strlen(contenueFich)+1,0);
 		if(resS1==-1){
 			perror("Erreur d'envoie du message pour le client 2");
 			pthread_exit(NULL);
 		}
 		/*On recoit le contenue du fichier et on lenvoie à lautre client*/
+		printf("Contenue du fichier envoyé au client 2\n");
 
 	}
 	else if(*arg==2){
@@ -68,6 +72,7 @@ void *threadFichier(int *arg){
 			pthread_exit(NULL);
 		}
 		/*On recoit le nom du fichier et on l'envoie à lautre client pour quil crée un fichier*/
+		printf("Nom du fichier reçu.\n");
 
 
 		resR1 = recv(dSocketClient2,contenueFich,sizeof(contenueFich),0);
@@ -79,12 +84,16 @@ void *threadFichier(int *arg){
 			perror("Socket fermé du client 1");
 			pthread_exit(NULL);
 		}
+
+		printf("Contenue du fichier reçu\n");
+
 		resS1 = send(dSocketClient1,contenueFich,strlen(contenueFich)+1,0);
 		if(resS1==-1){
 			perror("Erreur d'envoie du message pour le client 2");
 			pthread_exit(NULL);
 		}
 		/*On recoit le contenue du fichier et on lenvoie à lautre client*/
+		printf("Contenue du fichier envoyé au client 2\n");
 
 	}
 	pthread_exit(NULL);
@@ -221,7 +230,6 @@ int main(int argc,char* argv[]){
 	socklen_t lgA1=sizeof(struct sockaddr_in);
 	struct sockaddr_in adClient2;
 	socklen_t lgA2=sizeof(struct sockaddr_in);
-	printf("on est avant le while\n");
 
 	/*On a bind le serveur pour permettre aux clients de se connecter à lui et on initialise 2 structures sockaddr_in pour les paires de clients qui vont se connecter*/
 	
@@ -234,6 +242,8 @@ int main(int argc,char* argv[]){
 
 		dSocketClient2 = accept(dSocket,(struct sockaddr *) &adClient2,&lgA2);
 		/*On met en place deux sockets clients pour permettre l'échange de message bien structuré*/
+
+		printf("Les deux clients sont connectés, ils peuvent maintenant communiquer.\n");
 		
 		if(pthread_create(&client1,NULL,(void*)&c1versc2,NULL)==-1){
 			perror("erreur dans la création du thread 1");
