@@ -104,10 +104,11 @@ void *c1versc2(void *arg){
 	while(1){
 		   	char msg[50];
 			int resR1 = recv(dSocketClient1,msg,sizeof(msg),0);
+
 			/*On recoit le message du client 1*/
 			if(resR1==-1){
-				perror("Erreur de reception du message du client 1");
-				pthread_exit(NULL);
+				exit(0);
+				
 			}
 			else if(resR1==0){
 				perror("Socket fermé du client 1");
@@ -126,7 +127,7 @@ void *c1versc2(void *arg){
 					pthread_exit(NULL);
 				}
 
-			int ret= pthread_join(fichier,NULL);
+				int ret= pthread_join(fichier,NULL);
 			}
 			else{
 
@@ -159,8 +160,8 @@ void *c2versc1(void *arg){
 
 			int resR2 = recv(dSocketClient2,msg,sizeof(msg),0);
 			if(resR2==-1){
-				perror("Erreur de reception du message du client 2");
-				pthread_exit(NULL);
+				exit(0);
+				
 			}
 			else if(resR2==0){
 				perror("Socket fermé du client 2");
@@ -181,7 +182,7 @@ void *c2versc1(void *arg){
 					pthread_exit(NULL);
 				}
 				
-			int ret= pthread_join(fichier,NULL);
+				int ret= pthread_join(fichier,NULL);
 			}
 
 			else{
@@ -199,6 +200,7 @@ void *c2versc1(void *arg){
 
 				printf("Message recu du Client 2: %s",msg);
 				int resS2 = send(dSocketClient1,msg,strlen(msg)+1,0);
+
 				if(resS2==-1){
 					perror("Erreur d'envoie du message pour le client 1");
 					pthread_exit(NULL);

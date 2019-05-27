@@ -70,8 +70,8 @@ void *envoie(void *arg){
 			fgets(buffer,50,stdin);
 
 			if(strcmp(buffer,"/file\n")==0){
-				  char str[1000];
-				  char contenueFichier[1000]="";
+				  char str[20000];
+				  char contenueFichier[20000]="";
 
 				  int resS = send(dSock,buffer,strlen(buffer)+1,0);
 				  /*On envoie le message du fichier au serveur*/
@@ -193,7 +193,8 @@ void *reception(void *arg){
 			}
 
 			if(strcmp(buffer,"fin\n")==0){
-				break;
+				close(dSock);
+				exit(0);
 			}
 			/*Si le message reçu est fin alors on sort de la boucle*/
 		}
