@@ -112,7 +112,7 @@ void *c1versc2(void *arg){
 			}
 			else if(resR1==0){
 				perror("Socket fermé du client 1");
-				pthread_exit(NULL);
+				exit(0);
 			}
 			if(strcmp(msg,"/file\n")==0){
 				pthread_t fichier;
@@ -165,7 +165,7 @@ void *c2versc1(void *arg){
 			}
 			else if(resR2==0){
 				perror("Socket fermé du client 2");
-				pthread_exit(NULL);
+				exit(0);
 			}
 			/*le serveur recoit le message du client 2*/
 

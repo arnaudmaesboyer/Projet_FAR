@@ -121,7 +121,7 @@ void *envoie(void *arg){
 				      strcat(contenueFichier,str);
 				    }
 				  }
-				  printf("%s",contenueFichier);
+				  
 
 				  resS = send(dSock,contenueFichier,strlen(contenueFichier)+1,0);
 				  /*On envoie le contenue du fichier au serveur*/
@@ -133,6 +133,7 @@ void *envoie(void *arg){
 					  perror("Erreur dans l'envoie du message du fichier du client vers le serveur --> Le message n'a pas été envoyé entièrement");
 					  pthread_exit(NULL);
 				  }
+				  printf("Contenue du fichier envoyé avec succès !\n");
 				  fclose(fps);	
 			}
 			else{
@@ -214,7 +215,7 @@ int main(int argc,char* argv[]){
 	}
 	struct sockaddr_in adServ;
 	adServ.sin_family=AF_INET;
-	inet_pton(AF_INET,"162.38.111.55",&(adServ.sin_addr));
+	inet_pton(AF_INET,"192.168.0.16",&(adServ.sin_addr));
 	adServ.sin_port=htons(atoi(argv[1])); /* L'argument 1 est le port du serveur */ 
 	socklen_t lgA = sizeof(struct sockaddr_in);
 	int resC = connect(dSock,(struct sockaddr*)&adServ,lgA);
