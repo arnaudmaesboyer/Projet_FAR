@@ -36,6 +36,7 @@ void *envoie(void *arg){
 				perror("Erreur dans l'envoie du message du client 2 vers le serveur --> Le message n'a pas été envoyé entièrement");
 				pthread_exit(NULL);
 			}
+			printf("Message envoyé !\n");
 			/*if(strcmp(buffer,"fin\n")==0){
 				puts("Vous avez été deco !");
 				exit(0);
@@ -77,7 +78,7 @@ int main(int argc,char* argv[]){
 	}
 	struct sockaddr_in adServ;
 	adServ.sin_family=AF_INET;
-	inet_pton(AF_INET,"162.38.111.61",&(adServ.sin_addr));
+	inet_pton(AF_INET,"162.38.111.55",&(adServ.sin_addr));
 	adServ.sin_port=htons(atoi(argv[1])); /* L'argument 1 est le port du serveur */ 
 	socklen_t lgA = sizeof(struct sockaddr_in);
 	int resC = connect(dSock,(struct sockaddr*)&adServ,lgA);
@@ -101,7 +102,6 @@ int main(int argc,char* argv[]){
 	puts("Rentrer le numéro du salon où vous voulez rentrer :");
 	char nomSalon[50];
 	fgets(nomSalon,50,stdin);  //nom du salon
-	puts("cest bon11");
 
 	send(dSock,&nomSalon,strlen(nomSalon)+1,0);
 

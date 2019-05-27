@@ -31,8 +31,17 @@ struct salon{
 
 struct salon tabSalon[10];
 
-struct salon prems;
-struct salon deu;
+struct salon chien;
+struct salon chat;
+struct salon souris;
+struct salon chenille;
+struct salon singe;
+struct salon tigre;
+struct salon ecureuil;
+struct salon dauphin;
+struct salon panda;
+struct salon elephant;
+
 
 int dSocket;
 
@@ -87,7 +96,6 @@ void *clientVersAutre(int i){
 			int nombreClient;
 			for(k=0;k<10;k++){
 				if(strcmp(tabSalon[k].salon,tabSocketClient[i].salon)==0){
-					puts("nb salon");
 					nombreClient = tabSalon[k].nbClient;
 				}
 			}
@@ -113,19 +121,17 @@ void *clientVersAutre(int i){
 void *connexion(){
 	int i = 0;
 	while(1){
-		puts("on passe là");
 		struct socketClient client;
 		client.socketC = accept(dSocket,(struct sockaddr *) &(client.adresseC),&lgA);
-		puts("on passe 2");
 
 		int res = recv(client.socketC,client.pseudo,sizeof(client.pseudo),0);
-		puts("cest bon");
-		printf("%s\n",client.pseudo);
+		printf("Le client %s est connecté\n",client.pseudo);
 		send(client.socketC,tabSalon,sizeof(tabSalon),0);
-		puts("cest bon 2");
+		printf("Envoi de la liste des salons au client %s\n",client.pseudo);
+
 		// on met le nom du salon choisit dans le client
 		res = recv(client.socketC,client.salon,sizeof(client.salon),0);
-		printf("%s\n",client.salon);
+		printf("Le client %s veut se connecter sur le salon %s\n",client.pseudo,client.salon);
 
 		int k;
 		int valide = 1;
@@ -139,7 +145,6 @@ void *connexion(){
 		while(valide == 1){
 			char msg[50]="Ce salon est plein veuillez en saisir un autre ! ";
 			send(client.socketC,msg,strlen(msg)+1,0);
-			puts("cest bon 2");
 			// on met le nom du salon choisit dans le client
 			res = recv(client.socketC,client.salon,sizeof(client.salon),0);
 			printf("%s\n",client.salon);
@@ -150,6 +155,7 @@ void *connexion(){
 			}
 		}
 		}
+		printf("Le client %s s'est bien connecté au salon %s\n",client.pseudo,client.salon);
 		
 		tabSocketClient[i] = client;
 
@@ -169,13 +175,47 @@ void *connexion(){
 
 int main(int argc,char* argv[]){
 
-	strcpy(prems.salon,"prems\n"); // car on va le comparer avec un fgets
-	prems.nbClient= 0;
-	tabSalon[0] = prems;
+	strcpy(chien.salon,"chien\n"); // car on va le comparer avec un fgets
+	chien.nbClient= 0;
+	tabSalon[0] = chien;
 
-	strcpy(deu.salon,"deu\n"); // car on va le comparer avec un fgets
-	deu.nbClient= 0;
-	tabSalon[1] = deu;
+	strcpy(chat.salon,"chat\n"); // car on va le comparer avec un fgets
+	chat.nbClient= 0;
+	tabSalon[1] = chat;
+
+	strcpy(souris.salon,"souris\n"); // car on va le comparer avec un fgets
+	souris.nbClient= 0;
+	tabSalon[2] = souris;
+
+	strcpy(chenille.salon,"chenille\n"); // car on va le comparer avec un fgets
+	chenille.nbClient= 0;
+	tabSalon[3] = chenille;
+
+	strcpy(souris.salon,"souris\n"); // car on va le comparer avec un fgets
+	souris.nbClient= 0;
+	tabSalon[4] = souris;
+
+	strcpy(tigre.salon,"tigre\n"); // car on va le comparer avec un fgets
+	tigre.nbClient= 0;
+	tabSalon[5] = tigre;
+
+	strcpy(ecureuil.salon,"ecureuil\n"); // car on va le comparer avec un fgets
+	ecureuil.nbClient= 0;
+	tabSalon[6] = ecureuil;
+
+	strcpy(dauphin.salon,"dauphin\n"); // car on va le comparer avec un fgets
+	dauphin.nbClient= 0;
+	tabSalon[7] = dauphin;
+
+	strcpy(panda.salon,"panda\n"); // car on va le comparer avec un fgets
+	panda.nbClient= 0;
+	tabSalon[8] = panda;
+
+	strcpy(elephant.salon,"elephant\n"); // car on va le comparer avec un fgets
+	elephant.nbClient= 0;
+	tabSalon[9] = elephant;
+
+
 
 	int i;
 	int k;
